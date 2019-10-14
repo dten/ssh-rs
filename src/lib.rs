@@ -168,35 +168,35 @@ impl std::fmt::Debug for Session {
 #[allow(dead_code)]
 #[repr(C)]
 enum SshOptions {
-    HOST,
-    PORT,
-    PORT_STR,
-    FD,
-    USER,
-    SSH_DIR,
-    IDENTITY,
-    ADD_IDENTITY,
-    KNOWNHOSTS,
-    TIMEOUT,
-    TIMEOUT_USEC,
-    SSH1,
-    SSH2,
-    LOG_VERBOSITY,
-    LOG_VERBOSITY_STR,
-    CIPHERS_C_S,
-    CIPHERS_S_C,
-    COMPRESSION_C_S,
-    COMPRESSION_S_C,
-    PROXYCOMMAND,
-    BINDADDR,
-    STRICTHOSTKEYCHECK,
-    COMPRESSION,
-    COMPRESSION_LEVEL,
-    KEY_EXCHANGE,
-    HOSTKEYS,
-    GSSAPI_SERVER_IDENTITY,
-    GSSAPI_CLIENT_IDENTITY,
-    GSSAPI_DELEGATE_CREDENTIALS,
+    Host,
+    Port,
+    PortStr,
+    Fd,
+    User,
+    SshDir,
+    Identity,
+    AddIdentity,
+    KnownHosts,
+    Timeout,
+    TimeoutUsec,
+    Ssh1,
+    Ssh2,
+    LogVerbosity,
+    LogVerbosityStr,
+    CiphersCS,
+    CiphersSC,
+    CompressionCS,
+    CompressionSC,
+    ProxyCommand,
+    BindAddr,
+    StrictKeyHostCheck,
+    Compression,
+    CompressionLevel,
+    KeyExchange,
+    HostKeys,
+    GssapiServerIdentity,
+    GssapiClientIdentity,
+    GssapiDelegateCredentials,
 }
 
 fn path_as_ptr(p: &Path) -> CString {
@@ -264,7 +264,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::HOST as c_int,
+                SshOptions::Host as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -279,7 +279,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::PORT as c_int,
+                SshOptions::Port as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -294,7 +294,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::USER as c_int,
+                SshOptions::User as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -309,7 +309,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::USER as c_int,
+                SshOptions::User as c_int,
                 path_as_ptr(v.as_ref()).as_ptr() as *const c_void,
             )
         };
@@ -324,7 +324,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::KNOWNHOSTS as c_int,
+                SshOptions::KnownHosts as c_int,
                 path_as_ptr(v.as_ref()).as_ptr() as *const c_void,
             )
         };
@@ -339,7 +339,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::IDENTITY as c_int,
+                SshOptions::Identity as c_int,
                 path_as_ptr(v.as_ref()).as_ptr() as *const c_void,
             )
         };
@@ -355,7 +355,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::SSH1 as c_int,
+                SshOptions::Ssh1 as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -371,7 +371,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::SSH2 as c_int,
+                SshOptions::Ssh2 as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
