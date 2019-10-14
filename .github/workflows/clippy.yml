@@ -1,9 +1,14 @@
-name: Clippy check
-on: push
+name: Lint
+on: [push]
 jobs:
-  clippy_check:
+  build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
+    - run: rustup component add clippy
+    - run: rustup component add rustfmt
+    - uses: actions/checkout@v1
+    - name: Clippy
+      run: cargo clippy -- -Dwarnings
+    - name: fmt
+      run: cargo fmt -- --check
+
