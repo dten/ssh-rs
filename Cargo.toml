@@ -11,6 +11,6 @@ documentation = "https://pijul.org/ssh/doc/ssh/index.html"
 
 
 [dependencies]
-libc="0.2"
-log="0.3"
-bitflags="0.3"
+libc= "0.2.62"
+log= "0.4.8"
+bitflags= "1.2.1"
