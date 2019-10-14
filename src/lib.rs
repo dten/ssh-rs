@@ -235,7 +235,7 @@ impl std::error::Error for Error {
             Error::IO(ref e) => e.description(),
         }
     }
-    fn cause(&self) -> Option<&std::error::Error> {
+    fn cause(&self) -> Option<&dyn std::error::Error> {
         match *self {
             Error::Ssh(_) => None,
             Error::IO(ref e) => Some(e),
