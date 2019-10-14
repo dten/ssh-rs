@@ -6,7 +6,7 @@
 //!
 //!# Client examples
 //!
-//! ```
+//! ``` no_run
 //! use ssh::*;
 //!
 //! let mut session=Session::new().unwrap();
@@ -19,7 +19,7 @@
 //!
 //!## Running a command on a remote server
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Read;
 //!
@@ -42,7 +42,7 @@
 //!
 //!## Creating a remote file
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Write;
 //!
@@ -63,7 +63,7 @@
 //!
 //!## Creating a remote directory with a file inside
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Write;
 //!
@@ -86,7 +86,7 @@
 //!
 //!## Reading a remote file
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Read;
 //!
