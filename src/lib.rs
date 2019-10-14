@@ -6,7 +6,7 @@
 //!
 //!# Client examples
 //!
-//! ```
+//! ``` no_run
 //! use ssh::*;
 //!
 //! let mut session=Session::new().unwrap();
@@ -19,7 +19,7 @@
 //!
 //!## Running a command on a remote server
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Read;
 //!
@@ -42,7 +42,7 @@
 //!
 //!## Creating a remote file
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Write;
 //!
@@ -63,7 +63,7 @@
 //!
 //!## Creating a remote directory with a file inside
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Write;
 //!
@@ -86,7 +86,7 @@
 //!
 //!## Reading a remote file
 //!
-//!```
+//!``` no_run
 //! use ssh::*;
 //! use std::io::Read;
 //!
@@ -119,10 +119,10 @@
 //!```
 
 extern crate libc;
-use self::libc::{c_char, c_int, c_uint, c_void, size_t, uint64_t};
+use self::libc::{c_char, c_int, c_uint, c_void, size_t};
 use std::ffi::CString;
 use std::fmt;
-use std::io::{Read, Write};
+use std::io::{Read};
 use std::path::Path;
 use std::ptr::copy_nonoverlapping;
 #[macro_use]
@@ -168,35 +168,35 @@ impl std::fmt::Debug for Session {
 #[allow(dead_code)]
 #[repr(C)]
 enum SshOptions {
-    HOST,
-    PORT,
-    PORT_STR,
-    FD,
-    USER,
-    SSH_DIR,
-    IDENTITY,
-    ADD_IDENTITY,
-    KNOWNHOSTS,
-    TIMEOUT,
-    TIMEOUT_USEC,
-    SSH1,
-    SSH2,
-    LOG_VERBOSITY,
-    LOG_VERBOSITY_STR,
-    CIPHERS_C_S,
-    CIPHERS_S_C,
-    COMPRESSION_C_S,
-    COMPRESSION_S_C,
-    PROXYCOMMAND,
-    BINDADDR,
-    STRICTHOSTKEYCHECK,
-    COMPRESSION,
-    COMPRESSION_LEVEL,
-    KEY_EXCHANGE,
-    HOSTKEYS,
-    GSSAPI_SERVER_IDENTITY,
-    GSSAPI_CLIENT_IDENTITY,
-    GSSAPI_DELEGATE_CREDENTIALS,
+    Host,
+    Port,
+    PortStr,
+    Fd,
+    User,
+    SshDir,
+    Identity,
+    AddIdentity,
+    KnownHosts,
+    Timeout,
+    TimeoutUsec,
+    Ssh1,
+    Ssh2,
+    LogVerbosity,
+    LogVerbosityStr,
+    CiphersCS,
+    CiphersSC,
+    CompressionCS,
+    CompressionSC,
+    ProxyCommand,
+    BindAddr,
+    StrictKeyHostCheck,
+    Compression,
+    CompressionLevel,
+    KeyExchange,
+    HostKeys,
+    GssapiServerIdentity,
+    GssapiClientIdentity,
+    GssapiDelegateCredentials,
 }
 
 fn path_as_ptr(p: &Path) -> CString {
@@ -235,7 +235,7 @@ impl std::error::Error for Error {
             Error::IO(ref e) => e.description(),
         }
     }
-    fn cause(&self) -> Option<&std::error::Error> {
+    fn cause(&self) -> Option<&dyn std::error::Error> {
         match *self {
             Error::Ssh(_) => None,
             Error::IO(ref e) => Some(e),
@@ -264,7 +264,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::HOST as c_int,
+                SshOptions::Host as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -279,7 +279,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::PORT as c_int,
+                SshOptions::Port as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -294,7 +294,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::USER as c_int,
+                SshOptions::User as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -309,7 +309,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::USER as c_int,
+                SshOptions::User as c_int,
                 path_as_ptr(v.as_ref()).as_ptr() as *const c_void,
             )
         };
@@ -324,7 +324,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::KNOWNHOSTS as c_int,
+                SshOptions::KnownHosts as c_int,
                 path_as_ptr(v.as_ref()).as_ptr() as *const c_void,
             )
         };
@@ -339,7 +339,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::IDENTITY as c_int,
+                SshOptions::Identity as c_int,
                 path_as_ptr(v.as_ref()).as_ptr() as *const c_void,
             )
         };
@@ -355,7 +355,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::SSH1 as c_int,
+                SshOptions::Ssh1 as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -371,7 +371,7 @@ impl Session {
         let e = unsafe {
             ssh_options_set(
                 self.session,
-                SshOptions::SSH2 as c_int,
+                SshOptions::Ssh2 as c_int,
                 v.as_ptr() as *const c_void,
             )
         };
@@ -686,11 +686,11 @@ extern "C" {
     fn ssh_scp_deny_request(s: *mut Scp_) -> c_int;
     fn ssh_scp_read(s: *mut Scp_, b: *mut c_char, st: size_t) -> c_int;
     //fn ssh_scp_push_file(s:*mut Scp_,b:*const c_char,st:size_t,mode:c_int)->c_int;
-    fn ssh_scp_push_file64(s: *mut Scp_, b: *const c_char, st: uint64_t, mode: c_int) -> c_int;
+    fn ssh_scp_push_file64(s: *mut Scp_, b: *const c_char, st: u64, mode: c_int) -> c_int;
     fn ssh_scp_push_directory(s: *mut Scp_, b: *const c_char, mode: c_int) -> c_int;
     fn ssh_scp_write(s: *mut Scp_, b: *const c_char, st: size_t) -> c_int;
     //fn ssh_scp_request_get_size(s:*mut Scp_)->c_int;
-    fn ssh_scp_request_get_size64(s: *mut Scp_) -> uint64_t;
+    fn ssh_scp_request_get_size64(s: *mut Scp_) -> u64;
     fn ssh_scp_request_get_permissions(s: *mut Scp_) -> c_int;
     fn ssh_scp_request_get_filename(s: *mut Scp_) -> *const c_char;
     fn ssh_scp_request_get_warning(s: *mut Scp_) -> *const c_char;
@@ -711,10 +711,10 @@ pub struct Scp<'b> {
 }
 
 bitflags! {
-    flags  Mode:c_int {
-        const WRITE = 0x0,
-        const READ = 0x1,
-        const RECURSIVE = 0x10
+    pub struct Mode: c_int {
+        const WRITE = 0x00;
+        const READ = 0x01;
+        const RECURSIVE = 0x10;
     }
 }
 
@@ -778,7 +778,7 @@ impl<'b> Scp<'b> {
             let e = ssh_scp_push_file64(
                 self.scp,
                 p.as_ptr() as *const _,
-                size as uint64_t,
+                size as u64,
                 mode as c_int,
             );
             if e == 0 {
