@@ -256,7 +256,7 @@ impl Session {
         if session.is_null() {
             Err(())
         } else {
-            Ok(Session { session: session })
+            Ok(Session { session })
         }
     }
     pub fn set_host(&mut self, v: &str) -> Result<(), Error> {
@@ -522,7 +522,7 @@ impl Session {
         } else {
             Ok(Scp {
                 session: self,
-                scp: scp,
+                scp,
                 size: 0,
             })
         }
