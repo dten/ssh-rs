@@ -119,7 +119,7 @@
 //!```
 
 extern crate libc;
-use self::libc::{c_char, c_int, c_uint, c_void, size_t, uint64_t};
+use self::libc::{c_char, c_int, c_uint, c_void, size_t};
 use std::ffi::CString;
 use std::fmt;
 use std::io::{Read, Write};
@@ -686,11 +686,11 @@ extern "C" {
     fn ssh_scp_deny_request(s: *mut Scp_) -> c_int;
     fn ssh_scp_read(s: *mut Scp_, b: *mut c_char, st: size_t) -> c_int;
     //fn ssh_scp_push_file(s:*mut Scp_,b:*const c_char,st:size_t,mode:c_int)->c_int;
-    fn ssh_scp_push_file64(s: *mut Scp_, b: *const c_char, st: uint64_t, mode: c_int) -> c_int;
+    fn ssh_scp_push_file64(s: *mut Scp_, b: *const c_char, st: u64, mode: c_int) -> c_int;
     fn ssh_scp_push_directory(s: *mut Scp_, b: *const c_char, mode: c_int) -> c_int;
     fn ssh_scp_write(s: *mut Scp_, b: *const c_char, st: size_t) -> c_int;
     //fn ssh_scp_request_get_size(s:*mut Scp_)->c_int;
-    fn ssh_scp_request_get_size64(s: *mut Scp_) -> uint64_t;
+    fn ssh_scp_request_get_size64(s: *mut Scp_) -> u64;
     fn ssh_scp_request_get_permissions(s: *mut Scp_) -> c_int;
     fn ssh_scp_request_get_filename(s: *mut Scp_) -> *const c_char;
     fn ssh_scp_request_get_warning(s: *mut Scp_) -> *const c_char;
@@ -778,7 +778,7 @@ impl<'b> Scp<'b> {
             let e = ssh_scp_push_file64(
                 self.scp,
                 p.as_ptr() as *const _,
-                size as uint64_t,
+                size as u64,
                 mode as c_int,
             );
             if e == 0 {
