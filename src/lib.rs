@@ -122,7 +122,7 @@ extern crate libc;
 use self::libc::{c_char, c_int, c_uint, c_void, size_t};
 use std::ffi::CString;
 use std::fmt;
-use std::io::{Read};
+use std::io::Read;
 use std::path::Path;
 use std::ptr::copy_nonoverlapping;
 #[macro_use]
@@ -696,8 +696,8 @@ extern "C" {
     fn ssh_scp_request_get_warning(s: *mut Scp_) -> *const c_char;
     // integer_mode: string in octal -> integer (= atoi in octal).
     fn ssh_scp_leave_directory(s: *mut Scp_) -> c_int;
-    // read_string: (= read_line) done by the std::io::Read trait
-    // string_mode: itoa in octal
+// read_string: (= read_line) done by the std::io::Read trait
+// string_mode: itoa in octal
 }
 
 #[allow(missing_copy_implementations)]
@@ -775,12 +775,8 @@ impl<'b> Scp<'b> {
     ) -> Result<(), Error> {
         unsafe {
             let p = path_as_ptr(path.as_ref());
-            let e = ssh_scp_push_file64(
-                self.scp,
-                p.as_ptr() as *const _,
-                size as u64,
-                mode as c_int,
-            );
+            let e =
+                ssh_scp_push_file64(self.scp, p.as_ptr() as *const _, size as u64, mode as c_int);
             if e == 0 {
                 Ok(())
             } else {
