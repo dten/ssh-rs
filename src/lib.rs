@@ -122,7 +122,7 @@ extern crate libc;
 use self::libc::{c_char, c_int, c_uint, c_void, size_t};
 use std::ffi::CString;
 use std::fmt;
-use std::io::{Read, Write};
+use std::io::{Read};
 use std::path::Path;
 use std::ptr::copy_nonoverlapping;
 #[macro_use]
