@@ -53,7 +53,7 @@
 //! println!("{:?}",session.is_server_known());
 //! session.userauth_publickey_auto(None).unwrap();
 //! {
-//!     let mut scp=session.scp_new(WRITE,"/tmp").unwrap();
+//!     let mut scp=session.scp_new(Mode::WRITE,"/tmp").unwrap();
 //!     scp.init().unwrap();
 //!     let buf=b"blabla blibli\n".to_vec();
 //!     scp.push_file("blublu",buf.len(),0o644).unwrap();
@@ -74,7 +74,7 @@
 //! println!("{:?}",session.is_server_known());
 //! session.userauth_publickey_auto(None).unwrap();
 //! {
-//!     let mut scp=session.scp_new(RECURSIVE|WRITE,"/tmp").unwrap();
+//!     let mut scp=session.scp_new(Mode::RECURSIVE|Mode::WRITE,"/tmp").unwrap();
 //!     scp.init().unwrap();
 //!     scp.push_directory("testdir",0o755).unwrap();
 //!     let buf=b"blabla\n".to_vec();
@@ -97,7 +97,7 @@
 //! println!("{:?}",session.is_server_known());
 //! session.userauth_publickey_auto(None).unwrap();
 //! {
-//!     let mut scp=session.scp_new(READ,"/tmp/blublu").unwrap();
+//!     let mut scp=session.scp_new(Mode::READ,"/tmp/blublu").unwrap();
 //!     scp.init().unwrap();
 //!     loop {
 //!         match scp.pull_request().unwrap() {
@@ -118,18 +118,17 @@
 //! }
 //!```
 
-extern crate libc;
-use self::libc::{c_char, c_int, c_uint, c_void, size_t};
-use std::ffi::CString;
-use std::fmt;
-use std::io::{Read};
-use std::path::Path;
-use std::ptr::copy_nonoverlapping;
 #[macro_use]
 extern crate log;
-
 #[macro_use]
 extern crate bitflags;
+
+use libc::{c_char, c_int, c_uint, c_void, size_t};
+use std::ffi::CString;
+use std::fmt;
+use std::io::Read;
+use std::path::Path;
+use std::ptr::copy_nonoverlapping;
 
 #[allow(missing_copy_implementations)]
 enum Session_ {}
@@ -160,7 +159,7 @@ pub struct Session {
     session: *mut Session_,
 }
 impl std::fmt::Debug for Session {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Session{{..}}")
     }
 }
@@ -219,7 +218,7 @@ fn err(session: &Session) -> Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Error::Ssh(ref descr) => write!(f, "SSH error: {}", descr),
             Error::IO(ref e) => e.fmt(f),
@@ -256,7 +255,7 @@ impl Session {
         if session.is_null() {
             Err(())
         } else {
-            Ok(Session { session: session })
+            Ok(Session { session })
         }
     }
     pub fn set_host(&mut self, v: &str) -> Result<(), Error> {
@@ -400,6 +399,7 @@ impl Session {
     }
 
     /// Check whether the remote server's key is known.
+    #[allow(clippy::wrong_self_convention)]
     pub fn is_server_known(&mut self) -> Result<ServerKnown, Error> {
         let e = unsafe { ssh_is_server_known(self.session) };
         if e >= 0 {
@@ -420,16 +420,16 @@ impl Session {
     /// Get a hash of the server's public key
     pub fn get_pubkey_hash(&mut self) -> Result<Vec<u8>, Error> {
         let mut ptr = std::ptr::null_mut();
-        let e = unsafe { ssh_get_pubkey_hash(self.session, std::mem::transmute(&mut ptr)) };
+        let e = unsafe { ssh_get_pubkey_hash(self.session, &mut ptr as *mut *mut u8) };
         if e >= 0 {
             let mut v = vec![0; e as usize];
             unsafe {
                 copy_nonoverlapping(ptr, v.as_mut_ptr(), e as usize);
-                ssh_clean_pubkey_hash(std::mem::transmute(&mut ptr))
+                ssh_clean_pubkey_hash(&mut ptr as *mut *mut u8)
             }
             Ok(v)
         } else {
-            unsafe { ssh_clean_pubkey_hash(std::mem::transmute(&mut ptr)) }
+            unsafe { ssh_clean_pubkey_hash(&mut ptr as *mut *mut u8) }
             Err(err(self))
         }
     }
@@ -509,7 +509,7 @@ impl Session {
         }
     }
     /// Start an SCP connection.
-    pub fn scp_new<'b, P: AsRef<Path>>(&'b mut self, mode: Mode, v: P) -> Result<Scp<'b>, Error> {
+    pub fn scp_new<P: AsRef<Path>>(&mut self, mode: Mode, v: P) -> Result<Scp<'_>, Error> {
         let scp = unsafe {
             ssh_scp_new(
                 self.session,
@@ -522,13 +522,13 @@ impl Session {
         } else {
             Ok(Scp {
                 session: self,
-                scp: scp,
+                scp,
                 size: 0,
             })
         }
     }
     /// Start a channel to issue remote commands.
-    pub fn channel_new<'b>(&'b mut self) -> Result<Channel<'b>, Error> {
+    pub fn channel_new(&mut self) -> Result<Channel<'_>, Error> {
         let e = unsafe { ssh_channel_new(self.session) };
         if e.is_null() {
             Err(err(self))
@@ -602,7 +602,7 @@ impl<'b> Channel<'b> {
     }
 }
 
-pub struct ChannelReader<'d, 'c: 'd> {
+pub struct ChannelReader<'d, 'c> {
     channel: &'d Channel<'c>,
     is_stderr: c_int,
 }
@@ -696,8 +696,8 @@ extern "C" {
     fn ssh_scp_request_get_warning(s: *mut Scp_) -> *const c_char;
     // integer_mode: string in octal -> integer (= atoi in octal).
     fn ssh_scp_leave_directory(s: *mut Scp_) -> c_int;
-    // read_string: (= read_line) done by the std::io::Read trait
-    // string_mode: itoa in octal
+// read_string: (= read_line) done by the std::io::Read trait
+// string_mode: itoa in octal
 }
 
 #[allow(missing_copy_implementations)]
@@ -775,12 +775,8 @@ impl<'b> Scp<'b> {
     ) -> Result<(), Error> {
         unsafe {
             let p = path_as_ptr(path.as_ref());
-            let e = ssh_scp_push_file64(
-                self.scp,
-                p.as_ptr() as *const _,
-                size as u64,
-                mode as c_int,
-            );
+            let e =
+                ssh_scp_push_file64(self.scp, p.as_ptr() as *const _, size as u64, mode as c_int);
             if e == 0 {
                 Ok(())
             } else {

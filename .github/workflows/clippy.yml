@@ -1,0 +1,14 @@
+name: Lint
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - run: rustup component add clippy
+    - run: rustup component add rustfmt
+    - uses: actions/checkout@v1
+    - name: Clippy
+      run: cargo clippy -- -Dwarnings
+    - name: fmt
+      run: cargo fmt -- --check
+
