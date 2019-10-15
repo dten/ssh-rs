@@ -118,18 +118,17 @@
 //! }
 //!```
 
-extern crate libc;
-use self::libc::{c_char, c_int, c_uint, c_void, size_t};
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate bitflags;
+
+use libc::{c_char, c_int, c_uint, c_void, size_t};
 use std::ffi::CString;
 use std::fmt;
 use std::io::Read;
 use std::path::Path;
 use std::ptr::copy_nonoverlapping;
-#[macro_use]
-extern crate log;
-
-#[macro_use]
-extern crate bitflags;
 
 #[allow(missing_copy_implementations)]
 enum Session_ {}
@@ -160,7 +159,7 @@ pub struct Session {
     session: *mut Session_,
 }
 impl std::fmt::Debug for Session {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> Result<(), std::fmt::Error> {
         write!(f, "Session{{..}}")
     }
 }
@@ -219,7 +218,7 @@ fn err(session: &Session) -> Error {
 }
 
 impl fmt::Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match *self {
             Error::Ssh(ref descr) => write!(f, "SSH error: {}", descr),
             Error::IO(ref e) => e.fmt(f),
@@ -603,7 +602,7 @@ impl<'b> Channel<'b> {
     }
 }
 
-pub struct ChannelReader<'d, 'c: 'd> {
+pub struct ChannelReader<'d, 'c> {
     channel: &'d Channel<'c>,
     is_stderr: c_int,
 }

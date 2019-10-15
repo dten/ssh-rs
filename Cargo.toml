@@ -8,7 +8,7 @@ links = "ssh"
 build = "build.rs"
 repository = "https://pijul.org/ssh"
 documentation = "https://pijul.org/ssh/doc/ssh/index.html"
-
+edition = "2018"
 
 [dependencies]
 libc= "0.2.62"
