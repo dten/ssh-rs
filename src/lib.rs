@@ -400,6 +400,7 @@ impl Session {
     }
 
     /// Check whether the remote server's key is known.
+    #[allow(clippy::wrong_self_convention)]
     pub fn is_server_known(&mut self) -> Result<ServerKnown, Error> {
         let e = unsafe { ssh_is_server_known(self.session) };
         if e >= 0 {
