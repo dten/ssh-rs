@@ -509,7 +509,7 @@ impl Session {
         }
     }
     /// Start an SCP connection.
-    pub fn scp_new<'b, P: AsRef<Path>>(&'b mut self, mode: Mode, v: P) -> Result<Scp<'b>, Error> {
+    pub fn scp_new<P: AsRef<Path>>(&mut self, mode: Mode, v: P) -> Result<Scp<'_>, Error> {
         let scp = unsafe {
             ssh_scp_new(
                 self.session,
@@ -528,7 +528,7 @@ impl Session {
         }
     }
     /// Start a channel to issue remote commands.
-    pub fn channel_new<'b>(&'b mut self) -> Result<Channel<'b>, Error> {
+    pub fn channel_new(&mut self) -> Result<Channel<'_>, Error> {
         let e = unsafe { ssh_channel_new(self.session) };
         if e.is_null() {
             Err(err(self))
