@@ -420,16 +420,16 @@ impl Session {
     /// Get a hash of the server's public key
     pub fn get_pubkey_hash(&mut self) -> Result<Vec<u8>, Error> {
         let mut ptr = std::ptr::null_mut();
-        let e = unsafe { ssh_get_pubkey_hash(self.session, std::mem::transmute(&mut ptr)) };
+        let e = unsafe { ssh_get_pubkey_hash(self.session, &mut ptr as *mut *mut u8) };
         if e >= 0 {
             let mut v = vec![0; e as usize];
             unsafe {
                 copy_nonoverlapping(ptr, v.as_mut_ptr(), e as usize);
-                ssh_clean_pubkey_hash(std::mem::transmute(&mut ptr))
+                ssh_clean_pubkey_hash(&mut ptr as *mut *mut u8)
             }
             Ok(v)
         } else {
-            unsafe { ssh_clean_pubkey_hash(std::mem::transmute(&mut ptr)) }
+            unsafe { ssh_clean_pubkey_hash(&mut ptr as *mut *mut u8) }
             Err(err(self))
         }
     }
