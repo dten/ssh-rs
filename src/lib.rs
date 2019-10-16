@@ -670,7 +670,10 @@ impl<'d, 'c> Read for ChannelReader<'d, 'c> {
         if e >= 0 {
             Ok(e as usize)
         } else {
-            Err(std::io::Error::last_os_error())
+            Err(std::io::Error::new(
+                std::io::ErrorKind::Other,
+                err(self.channel.session),
+            ))
         }
     }
 }
