@@ -198,6 +198,15 @@ enum SshOptions {
     GssapiDelegateCredentials,
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Verbosity {
+    NoLog,
+    Warning,
+    Protocol,
+    Packet,
+    Functions,
+}
+
 fn path_as_ptr(p: &Path) -> CString {
     let p = p.to_str().unwrap();
     std::ffi::CString::new(p).unwrap()
@@ -380,6 +389,24 @@ impl Session {
             Err(err(self))
         }
     }
+
+    pub fn set_log_verbosity(&mut self, verbosity: Verbosity) -> Result<(), Error> {
+        let v = verbosity as c_int;
+        debug!("Setting session verbosity to {}", v);
+        let e = unsafe {
+            ssh_options_set(
+                self.session,
+                SshOptions::LogVerbosity as c_int,
+                &v as *const c_int as *const c_void,
+            )
+        };
+        if e == SSH_OK {
+            Ok(())
+        } else {
+            Err(err(self))
+        }
+    }
+
     /// Parse configuration file. If the path is `None`, then `~/.ssh/config` is read.
     pub fn parse_config(&mut self, path: Option<&Path>) -> Result<(), Error> {
         let e = unsafe {
