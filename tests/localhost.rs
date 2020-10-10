@@ -25,5 +25,5 @@ fn github_session() -> Session {
 
 fn assert_maybe_known(session: &mut Session) {
     let known = session.is_server_known().unwrap();
-    assert!(known == ServerKnown::Known || known == ServerKnown::NotKnown);
+    assert!(matches!(known, ServerKnown::Known | ServerKnown::NotKnown));
 }

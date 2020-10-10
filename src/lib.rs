@@ -593,10 +593,7 @@ pub enum ServerKnown {
 
 impl ServerKnown {
     pub fn is_known(&self) -> bool {
-        match *self {
-            ServerKnown::Known => true,
-            _ => false,
-        }
+        matches!(*self, ServerKnown::Known)
     }
 }
 
