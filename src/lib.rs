@@ -576,7 +576,7 @@ impl Drop for Session {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 #[repr(C)]
 pub enum ServerKnown {
     /// The key is unknown
