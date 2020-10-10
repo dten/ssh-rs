@@ -117,6 +117,7 @@
 //!     }
 //! }
 //!```
+#![warn(clippy::all)]
 
 #[macro_use]
 extern crate log;
