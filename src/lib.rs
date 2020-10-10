@@ -238,21 +238,15 @@ impl fmt::Display for Error {
     }
 }
 
-//pub type Error=&'static str;
 impl std::error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Ssh(ref descr) => descr,
-            Error::IO(ref e) => e.description(),
-        }
-    }
-    fn cause(&self) -> Option<&dyn std::error::Error> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match *self {
             Error::Ssh(_) => None,
             Error::IO(ref e) => Some(e),
         }
     }
 }
+
 const SSH_OK: c_int = 0;
 
 impl From<std::io::Error> for Error {
