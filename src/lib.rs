@@ -136,6 +136,8 @@ enum Session_ {}
 
 #[link(name = "ssh")]
 extern "C" {
+    fn ssh_init() -> c_int;
+    fn ssh_finalize() -> c_int;
     fn ssh_new() -> *mut Session_;
     fn ssh_free(s: *mut Session_);
     fn ssh_connect(s: *mut Session_) -> c_int;
@@ -261,6 +263,9 @@ impl From<std::io::Error> for Error {
 
 impl Session {
     pub fn new() -> Result<Session, ()> {
+        if unsafe { ssh_init() } != SSH_OK {
+            return Err(());
+        }
         let session = unsafe { ssh_new() };
         if session.is_null() {
             Err(())
@@ -573,6 +578,7 @@ impl Drop for Session {
     fn drop(&mut self) {
         debug!("ssh_free");
         unsafe { ssh_free(self.session) }
+        unsafe { ssh_finalize() };
     }
 }
 
