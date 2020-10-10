@@ -117,6 +117,7 @@
 //!     }
 //! }
 //!```
+#![warn(clippy::all)]
 
 #[macro_use]
 extern crate log;
@@ -135,6 +136,8 @@ enum Session_ {}
 
 #[link(name = "ssh")]
 extern "C" {
+    fn ssh_init() -> c_int;
+    fn ssh_finalize() -> c_int;
     fn ssh_new() -> *mut Session_;
     fn ssh_free(s: *mut Session_);
     fn ssh_connect(s: *mut Session_) -> c_int;
@@ -235,21 +238,15 @@ impl fmt::Display for Error {
     }
 }
 
-//pub type Error=&'static str;
 impl std::error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Ssh(ref descr) => descr,
-            Error::IO(ref e) => e.description(),
-        }
-    }
-    fn cause(&self) -> Option<&dyn std::error::Error> {
+    fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
         match *self {
             Error::Ssh(_) => None,
             Error::IO(ref e) => Some(e),
         }
     }
 }
+
 const SSH_OK: c_int = 0;
 
 impl From<std::io::Error> for Error {
@@ -260,6 +257,9 @@ impl From<std::io::Error> for Error {
 
 impl Session {
     pub fn new() -> Result<Session, ()> {
+        if unsafe { ssh_init() } != SSH_OK {
+            return Err(());
+        }
         let session = unsafe { ssh_new() };
         if session.is_null() {
             Err(())
@@ -572,10 +572,11 @@ impl Drop for Session {
     fn drop(&mut self) {
         debug!("ssh_free");
         unsafe { ssh_free(self.session) }
+        unsafe { ssh_finalize() };
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 #[repr(C)]
 pub enum ServerKnown {
     /// The key is unknown
@@ -592,10 +593,7 @@ pub enum ServerKnown {
 
 impl ServerKnown {
     pub fn is_known(&self) -> bool {
-        match *self {
-            ServerKnown::Known => true,
-            _ => false,
-        }
+        matches!(*self, ServerKnown::Known)
     }
 }
 
